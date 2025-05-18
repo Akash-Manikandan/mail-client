@@ -1,0 +1,45 @@
+[
+  {
+    "logic": "all",
+    "conditions": [
+      {
+        "field": "Subject",
+        "operator": "contains",
+        "value": "Netflix"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Mark",
+        "parameters": {
+          "status": "read"
+        }
+      }
+    ],
+    "description": "Marks emails with subject 'Interview Invitation' as read."
+  },
+  {
+    "logic": "all",
+    "conditions": [
+      {
+        "field": "Subject",
+        "operator": "does not contain",
+        "value": "confidential"
+      },
+      {
+        "field": "From",
+        "operator": "contains",
+        "value": "@aiven.io"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Move Message",
+        "parameters": {
+          "destination": "Promotions"
+        }
+      }
+    ],
+    "description": "Moves emails to the 'Promotions' folder if they are not confidential or are from a newsletter."
+  }
+]

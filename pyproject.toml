@@ -1,0 +1,14 @@
+[project]
+name = "mail-client"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.9"
+dependencies = [
+    "google-api-python-client>=2.169.0",
+    "google-auth-httplib2>=0.2.0",
+    "google-auth-oauthlib>=1.2.2",
+    "python-dateutil>=2.9.0.post0",
+    "pytz>=2025.2",
+    "sqlmodel>=0.0.24",
+]

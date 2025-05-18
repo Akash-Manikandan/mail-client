@@ -1,0 +1,129 @@
+[
+  {
+    "logic": "all",
+    "conditions": [
+      {
+        "field": "Subject",
+        "operator": "equals",
+        "value": "Deletion notice"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Mark",
+        "parameters": {
+          "status": "read"
+        }
+      }
+    ],
+    "description": "Marks emails with subject 'Interview Invitation' as read."
+  },
+  {
+    "logic": "all",
+    "conditions": [
+      {
+        "field": "Subject",
+        "operator": "does not contain",
+        "value": "confidential"
+      },
+      {
+        "field": "From",
+        "operator": "contains",
+        "value": "@aiven.io"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Move Message",
+        "parameters": {
+          "destination": "Promotions"
+        }
+      }
+    ],
+    "description": "Moves emails to the 'Promotions' folder if they are not confidential or are from a newsletter."
+  },
+  {
+    "logic": "all",
+    "conditions": [
+      {
+        "field": "Received Date/Time",
+        "operator": "less than",
+        "value": {
+          "quantity": 7,
+          "unit": "days"
+        }
+      },
+      {
+        "field": "Subject",
+        "operator": "contains",
+        "value": "Reminder"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Mark",
+        "parameters": {
+          "status": "unread"
+        }
+      }
+    ],
+    "description": "Marks recent reminder emails (less than 7 days old) as unread to keep them noticeable."
+  },
+  {
+    "logic": "all",
+    "conditions": [
+      {
+        "field": "Received Date/Time",
+        "operator": "greater than",
+        "value": {
+          "quantity": 1,
+          "unit": "month"
+        }
+      },
+      {
+        "field": "From",
+        "operator": "does not equal",
+        "value": "hr@example.com"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Move Message",
+        "parameters": {
+          "destination": "Archive"
+        }
+      }
+    ],
+    "description": "Archives messages older than 1 month unless they are from hr@example.com."
+  },
+  {
+    "logic": "any",
+    "conditions": [
+      {
+        "field": "Subject",
+        "operator": "does not equal",
+        "value": "Meeting Notes"
+      },
+      {
+        "field": "Message",
+        "operator": "equals",
+        "value": "Please find the attached report"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Mark",
+        "parameters": {
+          "status": "read"
+        }
+      },
+      {
+        "type": "Move Message",
+        "parameters": {
+          "destination": "Reports"
+        }
+      }
+    ],
+    "description": "Marks emails as read and moves them to 'Reports' if the subject isn't 'Meeting Notes' or if the message says 'Please find the attached report'."
+  }
+]
