@@ -1,8 +1,8 @@
 from typing import List
-from sqlalchemy import and_, or_, not_
+from sqlalchemy import and_, or_, not_, func
 from sqlmodel import Session, select
 from datetime import datetime, timedelta
-from constants import FIELD_MAP
+from constants import FIELD_MAP, REPLACABLE_LABELS, ADD_CATEGORY_LABELS, CATEGORY_PREFIX
 from db.models import Email
 from utils.types import Rule, Condition, RelativeTime
 
@@ -32,6 +32,28 @@ class RuleEvaluatorService:
         operator = condition.operator.lower()
         value = condition.value
 
+        # Normalize to list
+        values = value if isinstance(value, list) else [value]
+        values = [v.strip().lower() if isinstance(v, str) else v for v in values]
+
+        if field == "to":
+            column = getattr(Email, "to", None)
+            if not column:
+                raise AttributeError("Email model must have a 'to' field")
+
+            formatted_col = func.lower(func.concat(",", column, ","))
+
+            def build_like_clause(v):
+                return formatted_col.like(f"%,{v},%")
+
+            if operator == "equals" or operator == "contains":
+                return or_(*[build_like_clause(v) for v in values])
+            elif operator == "does not contain":
+                return and_(*[~build_like_clause(v) for v in values])
+            else:
+                raise ValueError(f"Unsupported operator for 'to' field: {operator}")
+
+        # Date-time handling
         if field == "received_date_time" and isinstance(value, RelativeTime):
             dt_value = self._relative_time_to_datetime(value, operator)
             if "less" in operator:
@@ -41,10 +63,8 @@ class RuleEvaluatorService:
             else:
                 raise ValueError("Unsupported date/time operator")
 
-        
-
+        # Fallback for all other fields
         column = getattr(Email, FIELD_MAP.get(field, field), None)
-
         if not column:
             raise AttributeError(f"Invalid field: {field}")
 
@@ -79,11 +99,21 @@ class RuleEvaluatorService:
                     email.labels = ",".join(current_labels)
 
             elif action.type == "Move Message":
-                destination = action.parameters.destination
+                destination = action.parameters.destination.upper()
                 current_labels = email.labels.split(",") if email.labels else []
-                if destination not in current_labels:
-                    current_labels.append(destination.upper())
-                    email.labels = ",".join(current_labels)
+                if (
+                    CATEGORY_PREFIX not in destination
+                    and destination in ADD_CATEGORY_LABELS
+                ):
+                    destination = f"{CATEGORY_PREFIX}{destination}"
+                filtered_labels = [
+                    label for label in current_labels if label not in REPLACABLE_LABELS
+                ]
+
+                if destination not in filtered_labels:
+                    filtered_labels.append(destination)
+
+                email.labels = ",".join(filtered_labels)
 
     def execute(self, session: Session) -> List[Email]:
         filters = [self._build_filter(cond) for cond in self.rule.conditions]

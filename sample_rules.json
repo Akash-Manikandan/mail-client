@@ -49,25 +49,25 @@
         "field": "Received Date/Time",
         "operator": "less than",
         "value": {
-          "quantity": 7,
+          "quantity": 2,
           "unit": "days"
         }
       },
       {
-        "field": "Subject",
-        "operator": "contains",
-        "value": "Reminder"
+        "field": "From",
+        "operator": "equals",
+        "value": "ivan@mail.notion.so"
       }
     ],
     "actions": [
       {
         "type": "Mark",
         "parameters": {
-          "status": "unread"
+          "status": "read"
         }
       }
     ],
-    "description": "Marks recent reminder emails (less than 7 days old) as unread to keep them noticeable."
+    "description": "Marks recent reminder emails (less than 2 days old) as unread to keep them noticeable."
   },
   {
     "logic": "all",
@@ -106,8 +106,8 @@
       },
       {
         "field": "Message",
-        "operator": "equals",
-        "value": "Please find the attached report"
+        "operator": "contains",
+        "value": "Google Cloud Shell"
       }
     ],
     "actions": [

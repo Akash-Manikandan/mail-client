@@ -16,7 +16,7 @@
         }
       }
     ],
-    "description": "Marks emails with subject 'Interview Invitation' as read."
+    "description": "Marks emails with subject 'Netflix' as read."
   },
   {
     "logic": "all",
@@ -41,5 +41,62 @@
       }
     ],
     "description": "Moves emails to the 'Promotions' folder if they are not confidential or are from a newsletter."
+  },
+  {
+    "logic": "all",
+    "conditions": [
+      {
+        "field": "Received Date/Time",
+        "operator": "less than",
+        "value": {
+          "quantity": 2,
+          "unit": "days"
+        }
+      },
+      {
+        "field": "From",
+        "operator": "equals",
+        "value": "ivan@mail.notion.so"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Mark",
+        "parameters": {
+          "status": "unread"
+        }
+      }
+    ],
+    "description": "Marks recent reminder emails (less than 2 days old) as read to keep them noticeable."
+  },
+  {
+    "logic": "any",
+    "conditions": [
+      {
+        "field": "Subject",
+        "operator": "equals",
+        "value": "Meeting Notes"
+      },
+      {
+        "field": "Message",
+        "operator": "contains",
+        "value": "Google Cloud Shell"
+      }
+    ],
+    "actions": [
+      {
+        "type": "Mark",
+        "parameters": {
+          "status": "read"
+        }
+      },
+      {
+        "type": "Move Message",
+        "parameters": {
+          "destination": "Reports"
+        }
+      }
+    ],
+    "description": "Marks emails as read and moves them to 'Reports' if the subject isn't 'Meeting Notes' or if the message says 'Please find the attached report'."
   }
 ]

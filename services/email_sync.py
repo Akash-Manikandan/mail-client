@@ -47,7 +47,7 @@ class EmailSyncService:
                         id=email.id,
                         thread_id=email.thread_id,
                         from_=parseaddr(email.from_)[1],
-                        to=email.to,
+                        to=parseaddr(email.to)[1],
                         subject=email.subject,
                         date=email.date if isinstance(email.date, datetime) else None,
                         snippet=email.snippet,
