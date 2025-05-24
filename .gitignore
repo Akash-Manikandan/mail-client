@@ -11,3 +11,5 @@ wheels/
 token.json
 credentials.json
 write_token.json
+
+emails.db
