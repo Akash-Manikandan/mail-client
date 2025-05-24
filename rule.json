@@ -125,13 +125,13 @@
       {
         "type": "Mark",
         "parameters": {
-          "status": "read"
+          "status": "unread"
         }
       },
       {
         "type": "Move Message",
         "parameters": {
-          "destination": "Promotions"
+          "destination": "Updates"
         }
       }
     ],

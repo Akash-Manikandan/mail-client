@@ -14,13 +14,6 @@ class GmailWriter:
         add_labels: List[str] = [],
         remove_labels: List[str] = []
     ) -> None:
-        """
-        Modify the labels of a Gmail message.
-
-        :param message_id: The ID of the message to modify.
-        :param add_labels: List of label IDs to add.
-        :param remove_labels: List of label IDs to remove.
-        """
         body = {
             "addLabelIds": list(set(add_labels)),
             "removeLabelIds": list(set(remove_labels)),

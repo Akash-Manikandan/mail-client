@@ -3,11 +3,9 @@ from typing import Any, Callable, List
 from utils.types import Condition, Action, Rule, RelativeTime, ActionParameters
 
 class JSONUtils:
-    """Utility class for common JSON file operations."""
 
     @staticmethod
     def read(file_path: str) -> Any:
-        """Reads a JSON file and returns the data."""
         try:
             with open(file_path, "r", encoding="utf-8") as file:
                 return json.load(file)
@@ -18,7 +16,6 @@ class JSONUtils:
 
     @staticmethod
     def write(file_path: str, data: Any, pretty: bool = True) -> None:
-        """Writes data to a JSON file."""
         with open(file_path, "w", encoding="utf-8") as file:
             if pretty:
                 json.dump(data, file, indent=2, ensure_ascii=False)
@@ -27,11 +24,6 @@ class JSONUtils:
 
     @staticmethod
     def update(file_path: str, update_func: Callable[[Any], Any]) -> None:
-        """
-        Reads a JSON file, applies a function to update the data, and writes it back.
-        
-        `update_func` should take the JSON data as input and return the updated data.
-        """
         data = JSONUtils.read(file_path)
         updated_data = update_func(data)
         JSONUtils.write(file_path, updated_data)
