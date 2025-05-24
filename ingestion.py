@@ -1,13 +1,12 @@
 from gmail.reader import GmailReader
 from services.email_sync import EmailSyncService
-from sqlmodel import Session
 from sqlalchemy.engine import Engine
 from oauth.auth import GoogleAuthenticator
-from constants import SCOPES
+from constants import READONLY_SCOPES
 import logging
 
 def run_ingestion(engine: Engine):
-    authenticator = GoogleAuthenticator(scopes=SCOPES)
+    authenticator = GoogleAuthenticator(scopes=READONLY_SCOPES)
     gmail_service = authenticator.get_service(api="gmail", version="v1")
     reader = GmailReader(service=gmail_service)
 

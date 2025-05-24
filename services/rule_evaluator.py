@@ -5,11 +5,12 @@ from datetime import datetime, timedelta
 from constants import FIELD_MAP, REPLACABLE_LABELS, ADD_CATEGORY_LABELS, CATEGORY_PREFIX
 from db.models import Email
 from utils.types import Rule, Condition, RelativeTime
-
+from gmail.writer import GmailWriter
 
 class RuleEvaluatorService:
-    def __init__(self, rule: Rule):
+    def __init__(self, rule: Rule, gmail_writer: GmailWriter):
         self.rule = rule
+        self.gmail_writer = gmail_writer
 
     def _relative_time_to_datetime(self, rel: RelativeTime, operator: str) -> datetime:
         now = datetime.now()
@@ -80,40 +81,44 @@ class RuleEvaluatorService:
             raise ValueError(f"Unsupported operator: {operator}")
 
     def _apply_actions(self, email: Email):
+        label_ids_to_add = []
+        label_ids_to_remove = []
+
         for action in self.rule.actions:
             if action.type == "Mark":
                 status = action.parameters.status
                 if status == "read":
+                    label_ids_to_remove.append("UNREAD")
                     email.is_read = True
-                    current_labels = email.labels.split(",") if email.labels else []
-                    email.labels = ",".join(
-                        label
-                        for label in current_labels
-                        if label.strip().upper() != "UNREAD"
-                    )
                 elif status == "unread":
+                    label_ids_to_add.append("UNREAD")
                     email.is_read = False
-                    current_labels = email.labels.split(",") if email.labels else []
-                    if "UNREAD" not in [l.strip().upper() for l in current_labels]:
-                        current_labels.append("UNREAD")
-                    email.labels = ",".join(current_labels)
 
             elif action.type == "Move Message":
                 destination = action.parameters.destination.upper()
-                current_labels = email.labels.split(",") if email.labels else []
-                if (
-                    CATEGORY_PREFIX not in destination
-                    and destination in ADD_CATEGORY_LABELS
-                ):
+                if CATEGORY_PREFIX not in destination and destination in ADD_CATEGORY_LABELS:
                     destination = f"{CATEGORY_PREFIX}{destination}"
-                filtered_labels = [
-                    label for label in current_labels if label not in REPLACABLE_LABELS
-                ]
 
-                if destination not in filtered_labels:
-                    filtered_labels.append(destination)
+                label_ids_to_add.append(destination)
+                for l in REPLACABLE_LABELS:
+                    if l != destination:
+                        label_ids_to_remove.append(l)
 
-                email.labels = ",".join(filtered_labels)
+        label_ids_to_add = list(set(label_ids_to_add))
+        label_ids_to_remove = list(set(label_ids_to_remove))
+        print(f"="*40)
+        print(f"Adding labels: {label_ids_to_add}, Removing labels: {label_ids_to_remove}")
+        print(f"="*40)
+        self.gmail_writer.modify_labels(
+            message_id=email.id,
+            add_labels=label_ids_to_add,
+            remove_labels=label_ids_to_remove,
+        )
+
+        final_labels = set(email.labels.split(",")) if email.labels else set()
+        final_labels.update(label_ids_to_add)
+        final_labels.difference_update(label_ids_to_remove)
+        email.labels = ",".join(final_labels)
 
     def execute(self, session: Session) -> List[Email]:
         filters = [self._build_filter(cond) for cond in self.rule.conditions]

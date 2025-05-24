@@ -16,7 +16,7 @@
         }
       }
     ],
-    "description": "Marks emails with subject 'Netflix' as read."
+    "description": "Marks emails with subject containing 'Netflix' as read."
   },
   {
     "logic": "all",
@@ -29,7 +29,7 @@
       {
         "field": "From",
         "operator": "contains",
-        "value": "@aiven.io"
+        "value": "@medium.com"
       }
     ],
     "actions": [
@@ -40,7 +40,7 @@
         }
       }
     ],
-    "description": "Moves emails to the 'Promotions' folder if they are not confidential or are from a newsletter."
+    "description": "Moves emails from @medium.com to 'Promotions' unless subject contains 'confidential'."
   },
   {
     "logic": "all",
@@ -56,7 +56,7 @@
       {
         "field": "From",
         "operator": "equals",
-        "value": "ivan@mail.notion.so"
+        "value": "muskan.ganesh@couchbase.com"
       }
     ],
     "actions": [
@@ -67,7 +67,7 @@
         }
       }
     ],
-    "description": "Marks recent reminder emails (less than 2 days old) as read to keep them noticeable."
+    "description": "Marks emails from muskan.ganesh@couchbase.com received in the last 2 days as unread."
   },
   {
     "logic": "any",
@@ -75,12 +75,12 @@
       {
         "field": "Subject",
         "operator": "equals",
-        "value": "Meeting Notes"
+        "value": "AxonOps follow up"
       },
       {
         "field": "Message",
         "operator": "contains",
-        "value": "Google Cloud Shell"
+        "value": "Claude Sonnet 4"
       }
     ],
     "actions": [
@@ -93,10 +93,48 @@
       {
         "type": "Move Message",
         "parameters": {
-          "destination": "Reports"
+          "destination": "Promotions"
         }
       }
     ],
-    "description": "Marks emails as read and moves them to 'Reports' if the subject isn't 'Meeting Notes' or if the message says 'Please find the attached report'."
+    "description": "Marks emails as read and moves them to 'Promotions' if subject is 'AxonOps follow up' or message contains 'Claude Sonnet 4'."
+  },
+  {
+    "logic": "any",
+    "conditions": [
+      {
+        "field": "From",
+        "operator": "contains",
+        "value": "noreply"
+      },
+      {
+        "field": "Subject",
+        "operator": "contains",
+        "value": "Couchbase"
+      },
+      {
+        "field": "Received Date/Time",
+        "operator": "less than",
+        "value": {
+          "quantity": 2,
+          "unit": "days"
+        }
+      }
+    ],
+    "actions": [
+      {
+        "type": "Mark",
+        "parameters": {
+          "status": "read"
+        }
+      },
+      {
+        "type": "Move Message",
+        "parameters": {
+          "destination": "Promotions"
+        }
+      }
+    ],
+    "description": "Marks emails as read and moves them to 'Promotions' if they are from 'noreply', contain 'Couchbase' in the subject, or were received in the last 2 days."
   }
 ]
